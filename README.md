@@ -1,9 +1,11 @@
 # Siêu Học
 
-**Phiên bản 4.0**
+**Phiên bản 4.1**
 
 Phần mềm học tập chạy **offline** trên Windows:
 
+- 📖 **Tiếng Việt / Ngữ văn lớp 1 → 12**: 96 bài + 652 câu/đề (dàn ý, biểu điểm)
+- 🔬 **Tự nhiên và Xã hội / Khoa học lớp 1 → 5**: 30 bài + 190 câu
 - ➗ **Toán lớp 1 → 12**: 114 chương (lý thuyết, ví dụ có lời giải, bài tập) + 806 câu luyện đề Cơ bản → HSG quốc gia
 - 🏫 **Tiếng Anh lớp 1 → 12**: 154 bài học theo Chương trình GDPT 2018 (nội dung tự soạn, không sao chép sách giáo khoa)
 - 🏆 **815 câu luyện đề** chia cấp độ: Cơ bản · Nâng cao · Olympic/IOE · HSG cấp tỉnh · HSG quốc gia — có lời giải từng bước và mẹo
