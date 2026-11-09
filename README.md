@@ -1,6 +1,6 @@
 # Siêu Học
 
-**Phiên bản 4.3** (thêm Lịch sử, Địa lí 10-12; (thêm Khoa học tự nhiên 6-9, Vật lí, Hoá học, Sinh học 10-12)
+**Phiên bản 4.4** (đủ các môn lớp 1–12 trừ Tin học)
 
 Phần mềm học tập chạy **offline** trên Windows:
 
