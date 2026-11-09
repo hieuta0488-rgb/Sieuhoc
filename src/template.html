@@ -554,12 +554,26 @@ VIEWS.school=(arg)=>{
   <div class="topics" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr))">${grades.map(g=>`<button class="topic ${SC.g===g?'chon':''}" style="${SC.g===g?'border-color:var(--xanh);background:var(--nhat)':''}" onclick="SC.g=${g};S.grade=${g};save();go('school')"><div class="e">${['','1️⃣','2️⃣','3️⃣','4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟','🅰️','🎓'][g]}</div><b>Lớp ${g}</b><small>${cap(g)}</small></button>`).join('')}</div>`;
   if(SC.g){
     html+=`<div class="card mt"><h3 style="margin-top:0">Môn học · Lớp ${SC.g}</h3><div class="row">${subjFor(SC.g).map(su=>{const n=SCHOOL.filter(u=>u.grade===SC.g&&(u.subject||'en')===su.id).length+BANK.filter(q=>q.grade===SC.g&&(q.subject||'en')===su.id).length;return `<button class="chip ${SC.sub===su.id?'chon':''}" onclick="SC.sub='${su.id}';go('school')">${su.icon} ${su.name}${n?'':' · sắp có'}</button>`}).join('')}</div></div>`;
-    const units=SCHOOL.filter(u=>u.grade===SC.g&&(u.subject||'en')===SC.sub);
+    const allU=SCHOOL.filter(u=>u.grade===SC.g&&(u.subject||'en')===SC.sub);
+    const bookU=allU.filter(u=>u.book==='kntt');
+    const units=allU.filter(u=>!u.book);
+    if(!SC.tab && bookU.length) SC.tab='book';
     const bank=BANK.filter(q=>q.grade===SC.g&&(q.subject||'en')===SC.sub);
     if(!subjFor(SC.g).some(x=>x.id===SC.sub)) SC.sub=subjFor(SC.g)[0].id;
     const su=subjFor(SC.g).find(x=>x.id===SC.sub);
     html+=`<div class="crumb">🏫 <a onclick="SC.g=null;go('school')">Lớp</a> › <span>Lớp ${SC.g}</span> › <span>${su.icon} ${su.name}</span></div>
-    <div class="tabs2"><button class="${SC.tab!=='bank'?'chon':''}" onclick="SC.tab='learn';go('school')">📚 Bài học (${units.length})</button><button class="${SC.tab==='bank'?'chon':''}" onclick="SC.tab='bank';go('school')">🏆 Luyện đề theo cấp độ (${bank.length})</button></div>`;
+    <div class="tabs2">${bookU.length?`<button class="${SC.tab==='book'?'chon':''}" onclick="SC.tab='book';go('school')">📗 Theo SGK Kết nối tri thức (${bookU.length})</button>`:''}<button class="${SC.tab==='learn'||(!SC.tab)?'chon':''}" onclick="SC.tab='learn';go('school')">📚 Ôn theo chủ đề (${units.length})</button><button class="${SC.tab==='bank'?'chon':''}" onclick="SC.tab='bank';go('school')">🏆 Luyện đề theo cấp độ (${bank.length})</button></div>`;
+    if(SC.tab==='book'&&bookU.length){
+      const done=id=>(S.unit||{})[id];
+      const taps=[...new Set(bookU.map(u=>u.tap||1))];
+      html+=taps.map(t=>{const ut=bookU.filter(u=>(u.tap||1)===t);const chs=[...new Set(ut.map(u=>u.chuong))];
+        return `<div class="card"><h3 style="margin-top:0">📘 Tập ${t}</h3>${chs.map(ch=>{const ls=ut.filter(u=>u.chuong===ch);const d=ls.filter(u=>done(u.id)).length;
+          return `<details ${ls.some(u=>!done(u.id))&&!window.__opened?(window.__opened=1,'open'):''} style="margin:8px 0;border:1px solid var(--vien);border-radius:14px;padding:10px 14px"><summary style="cursor:pointer;font-weight:800">${esc(ch)} <span class="mut" style="font-weight:600">· ${d}/${ls.length} bài</span></summary>
+          <div class="list mt">${ls.map(u=>{const r=done(u.id);return `<div class="it"><div style="font-size:22px">${u.icon||'📘'}</div><div class="grow"><div class="w">${esc(u.title)}</div><div class="m">${esc(u.vi||'')}</div></div>${r?`<span class="pill luc">✓ ${r.c}/${r.t}</span>`:''}<button class="btn nho" onclick="go('school',{unit:'${u.id}'})">Học</button></div>`}).join('')}</div></details>`}).join('')}</div>`}).join('');
+      window.__opened=0;
+      html+=`<p class="mut center">Tên bài và thứ tự theo bộ sách Kết nối tri thức với cuộc sống. Nội dung tóm tắt, ví dụ và bài tập do phần mềm tự biên soạn.</p>`;
+      V().innerHTML=html; return;
+    }
     if(SC.tab==='bank'){
       const lvs=LVS.filter(l=>bank.some(q=>q.level===l.k));
       if(!lvs.length) html+=`<div class="card center"><h3>⏳ Kho đề lớp này đang được soạn</h3></div>`;
@@ -575,7 +589,8 @@ VIEWS.school=(arg)=>{
 function showUnit(u){
   if(!u) return go('school');
   const vid=v=>esc(JSON.stringify(v));
-  V().innerHTML=`<button class="btn phu nho" onclick="go('school')">◀ Lớp ${u.grade}</button>
+  const iB=u.book?SCHOOL.filter(x=>x.book===u.book&&x.grade===u.grade&&x.subject===u.subject):[]; const k=iB.findIndex(x=>x.id===u.id);
+  V().innerHTML=`<div class="row"><button class="btn phu nho" onclick="go('school')">◀ Lớp ${u.grade}</button>${u.book?`<span class="mut">${esc(u.chuong||'')}</span><span style="margin-left:auto"></span>${k>0?`<button class="btn phu nho" onclick="go('school',{unit:'${iB[k-1].id}'})">◀ Bài trước</button>`:''}${k>=0&&k<iB.length-1?`<button class="btn nho" onclick="go('school',{unit:'${iB[k+1].id}'})">Bài sau ▶</button>`:''}`:''}</div>
   <div class="hero mt"><div class="mas">${u.icon||'📘'}</div><div><h2>${esc(u.title)}</h2><p>${esc(u.vi)} · Lớp ${u.grade}</p><p style="opacity:.9">🎯 ${esc(u.goal||'')}</p></div></div>
   ${u.theory?`<div class="card lesson"><h3 style="margin-top:0">📘 Lý thuyết</h3><div class="tbl">${u.theory}</div></div>`:''}
   ${u.examples&&u.examples.length?`<div class="card lesson"><h3 style="margin-top:0">🧮 Ví dụ có lời giải</h3>${u.examples.map((e,i)=>`<div class="giai" style="margin-top:${i?12:0}px"><b>Ví dụ ${i+1}.</b> ${rich(e.q)}<details class="mt"><summary style="cursor:pointer;font-weight:700;color:var(--xanh)">👀 Xem lời giải</summary><div class="mt">${e.giai}</div></details></div>`).join('')}</div>`:''}
