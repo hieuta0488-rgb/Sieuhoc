@@ -9,7 +9,13 @@ Phần mềm học tập chạy **offline** trên Windows:
 
 ## Tải về
 
-Vào mục **[Releases](../../releases/latest)** và tải:
+Bấm vào link để tải trực tiếp:
+
+- ⬇️ **[Tải bộ cài .exe](https://github.com/hieuta0488-rgb/sieuhoc/raw/main/tai_ve/SieuHoc_Setup_3.0.0.exe)** (cài từng máy)
+- ⬇️ **[Tải bộ cài .msi](https://github.com/hieuta0488-rgb/sieuhoc/raw/main/tai_ve/SieuHoc_3.0.0.msi)** (cài hàng loạt)
+- ⬇️ **[Tải bản offline .html](https://github.com/hieuta0488-rgb/sieuhoc/raw/main/tai_ve/SieuHoc_offline.html)** (không cần cài)
+
+Chi tiết:
 
 | File | Dùng khi |
 |---|---|
