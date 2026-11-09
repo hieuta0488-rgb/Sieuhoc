@@ -1,6 +1,6 @@
 # Siêu Học
 
-**Phiên bản 4.4** (đủ các môn lớp 1–12 trừ Tin học)
+**Phiên bản 5.0 – trọn bộ tất cả các môn lớp 1–12**
 
 Phần mềm học tập chạy **offline** trên Windows:
 
