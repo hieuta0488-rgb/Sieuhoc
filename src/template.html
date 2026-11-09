@@ -244,7 +244,7 @@ function nav(){
 }
 function go(p,arg){ stopSay(); clearInterval(window.__tm); cur=p; nav(); window.scrollTo(0,0); (VIEWS[p]||VIEWS.home)(arg); }
 const V=()=>document.getElementById('view');
-function rich(s){return esc(s).replace(/&lt;(\/?)(b|i|u|br|strong|em)\s*\/?&gt;/g,'<$1$2>');}
+function rich(s){return esc(s).replace(/&lt;(\/?)(b|i|u|br|strong|em|sup|sub)\s*\/?&gt;/g,'<$1$2>');}
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 function pick(a,n){return shuffle(a).slice(0,n);}
@@ -422,22 +422,30 @@ function showLesson(g){
 
 /* ===================== BỘ LÀM BÀI CHUNG ===================== */
 function runQuiz(el, qs, onDone, opt={}){
-  let i=0,c=0;
+  qs=qs.map(mixOpts); let i=0,c=0;
   function show(){
     const q=qs[i];
     if(!q){ if(c/qs.length>=0.8) confetti(); el.innerHTML=`<div class="center"><div class="score">${c}/${qs.length}</div><p class="sub">${c/qs.length>=0.8?'Rất tốt! 🎉':c/qs.length>=0.5?'Khá ổn, cố thêm nhé!':'Xem lại giải thích và làm lại nhé.'}</p></div>`; onDone&&onDone(c,qs.length); return; }
-    el.innerHTML=`<p class="mut">Câu ${i+1}/${qs.length}</p>${q.pre||''}<div style="font-size:17px;font-weight:600">${q.qhtml||esc(q.q||'')}</div>
-    <div class="opts">${q.opts.map((o,k)=>`<button class="opt" data-k="${k}">${String.fromCharCode(65+k)}. ${esc(o)}</button>`).join('')}</div><div class="fb"></div>`;
+    el.innerHTML=`<p class="mut">Câu ${i+1}/${qs.length}</p>${q.pre||''}<div style="font-size:17px;font-weight:600">${q.qhtml||rich(q.q||'')}</div>
+    <div class="opts">${q.opts.map((o,k)=>`<button class="opt" data-k="${k}">${String.fromCharCode(65+k)}. ${rich(o)}</button>`).join('')}</div><div class="fb"></div>`;
     el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
       const k=+b.dataset.k, ok=k===q.a; if(ok){ c++; addStar(2); }
       el.querySelectorAll('.opt').forEach(x=>{x.disabled=true; if(+x.dataset.k===q.a) x.classList.add('dung');}); if(!ok) b.classList.add('sai');
       opt.onAnswer&&opt.onAnswer(ok);
-      el.querySelector('.fb').innerHTML=`<div class="why">${ok?'✅ Đúng!':'❌ Sai. Đáp án: <b>'+String.fromCharCode(65+q.a)+'</b>'}<br>${esc(q.why||'')}</div><div class="mt"><button class="btn">Câu tiếp ▶</button></div>`;
+      el.querySelector('.fb').innerHTML=`<div class="why">${ok?'✅ Đúng!':'❌ Sai. Đáp án: <b>'+String.fromCharCode(65+q.a)+'</b>'}<br>${rich(q.why||'')}</div><div class="mt"><button class="btn">Câu tiếp ▶</button></div>`;
       el.querySelector('.fb .btn').onclick=()=>{i++;show();};
     });
     q.onShow&&q.onShow();
   }
   show();
+}
+// Xáo thứ tự đáp án (giữ nguyên nếu có phương án tham chiếu A/B/C/D, "tất cả", "cả hai"...)
+function mixOpts(q){
+  if(!q||!q.opts||q.kind==='tl'||q.__mixed) return q;
+  const ref=/(^|[\s(])[A-D]([\s,.)]|$)|tất cả|cả hai|cả ba|đều đúng|đều sai|all of|none of|both|neither/i;
+  if(q.opts.some(o=>ref.test(o))) return q;
+  const idx=shuffle(q.opts.map((_,i)=>i));
+  return Object.assign({},q,{opts:idx.map(i=>q.opts[i]),a:idx.indexOf(q.a),__mixed:1});
 }
 function addPart(k,ok){ const p=S.parts[k]||{c:0,t:0}; p.t++; if(ok)p.c++; S.parts[k]=p; save(); }
 
@@ -556,8 +564,10 @@ function showUnit(u){
   const vid=v=>esc(JSON.stringify(v));
   V().innerHTML=`<button class="btn phu nho" onclick="go('school')">◀ Lớp ${u.grade}</button>
   <div class="hero mt"><div class="mas">${u.icon||'📘'}</div><div><h2>${esc(u.title)}</h2><p>${esc(u.vi)} · Lớp ${u.grade}</p><p style="opacity:.9">🎯 ${esc(u.goal||'')}</p></div></div>
-  <div class="card"><h3 style="margin-top:0">📒 Từ vựng (${u.vocab.length})</h3><div class="row" style="margin-bottom:8px"><button class="btn vang nho" onclick='(async()=>{for(const v of ${vid(u.vocab.map(v=>v.w))}){await say(v);}})()'>🔊 Nghe tất cả</button></div>
-   <div class="list">${u.vocab.map(v=>`<div class="it"><button class="loa" onclick="sp(${vid(v.w)})">🔊</button><div class="grow"><div><span class="w">${esc(v.w)}</span> <span class="mut">${esc(v.ipa||'')}</span> — <b style="color:var(--luc)">${esc(v.vi)}</b></div><div class="m"><i>${esc(v.ex||'')}</i> ${v.ex?`<button class="loa" style="width:26px;height:26px;font-size:12px" onclick="sp(${vid(v.ex)})">🔊</button>`:''}<br>${esc(v.exvi||'')}</div></div></div>`).join('')}</div></div>
+  ${u.theory?`<div class="card lesson"><h3 style="margin-top:0">📘 Lý thuyết</h3><div class="tbl">${u.theory}</div></div>`:''}
+  ${u.examples&&u.examples.length?`<div class="card lesson"><h3 style="margin-top:0">🧮 Ví dụ có lời giải</h3>${u.examples.map((e,i)=>`<div class="giai" style="margin-top:${i?12:0}px"><b>Ví dụ ${i+1}.</b> ${rich(e.q)}<details class="mt"><summary style="cursor:pointer;font-weight:700;color:var(--xanh)">👀 Xem lời giải</summary><div class="mt">${e.giai}</div></details></div>`).join('')}</div>`:''}
+  ${u.vocab&&u.vocab.length?`<div class="card"><h3 style="margin-top:0">📒 Từ vựng (${u.vocab.length})</h3><div class="row" style="margin-bottom:8px"><button class="btn vang nho" onclick='(async()=>{for(const v of ${vid(u.vocab.map(v=>v.w))}){await say(v);}})()'>🔊 Nghe tất cả</button></div>
+   <div class="list">${u.vocab.map(v=>`<div class="it"><button class="loa" onclick="sp(${vid(v.w)})">🔊</button><div class="grow"><div><span class="w">${esc(v.w)}</span> <span class="mut">${esc(v.ipa||'')}</span> — <b style="color:var(--luc)">${esc(v.vi)}</b></div><div class="m"><i>${esc(v.ex||'')}</i> ${v.ex?`<button class="loa" style="width:26px;height:26px;font-size:12px" onclick="sp(${vid(v.ex)})">🔊</button>`:''}<br>${esc(v.exvi||'')}</div></div></div>`).join('')}</div></div>`:''}
   ${u.phrases&&u.phrases.length?`<div class="card"><h3 style="margin-top:0">💬 Mẫu câu</h3><div class="list">${u.phrases.map(p=>`<div class="it"><button class="loa" onclick="sp(${vid(p.en)})">🔊</button><div class="grow"><div class="w">${esc(p.en)}</div><div class="m">${esc(p.vi)}</div></div></div>`).join('')}</div></div>`:''}
   ${u.grammar?`<div class="card lesson"><h3 style="margin-top:0">📘 ${esc(u.grammar.title)}</h3><div class="tbl">${u.grammar.content}</div></div>`:''}
   <div class="card"><h3 style="margin-top:0">✍️ Bài tập</h3><div id="uq"></div></div>`;
@@ -568,7 +578,7 @@ function startBank(g,sub,lv){
   S.bank=S.bank||{};
   const all=BANK.filter(q=>q.grade===g&&(q.subject||'en')===sub&&q.level===lv);
   const wrong=all.filter(q=>S.bank[q.id]===0), fresh=all.filter(q=>S.bank[q.id]===undefined), ok=all.filter(q=>S.bank[q.id]===1);
-  const qs=[...shuffle(wrong),...shuffle(fresh),...shuffle(ok)].slice(0,10);
+  const qs=[...shuffle(wrong),...shuffle(fresh),...shuffle(ok)].slice(0,10).map(mixOpts);
   const L=LVS.find(x=>x.k===lv); const su=SUBJECTS.find(x=>x.id===sub);
   let i=0,c=0;
   V().innerHTML=`<div class="crumb">🏫 <a onclick="go('school')">Lớp ${g}</a> › ${su.icon} ${su.name} › <span style="color:${L.c}">${L.e} ${lv}</span></div><div class="card" id="bq"></div>`;

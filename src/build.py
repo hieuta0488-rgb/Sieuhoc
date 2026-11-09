@@ -20,6 +20,10 @@ for f in sorted(glob.glob('/tmp/claude-0/school/en_g*.json'), key=lambda f:int(r
     school+=json.load(open(f))
 for u in school: u.setdefault('subject','en')
 bank=[]
+# SUBJ: các môn khác (toan_*, van_*, ...) dạng {units,bank}
+for f in sorted(glob.glob('/tmp/claude-0/school/*_g*.json')):
+    if os.path.basename(f).startswith(('en_','bank_')): continue
+    d=json.load(open(f)); school+=d.get('units',[]); bank+=d.get('bank',[])
 for f in sorted(glob.glob('/tmp/claude-0/school/bank_g*.json')):
     bank+=json.load(open(f))
 keep=['w','pos','vi','lv','t','toeic','ex','exvi','ipa']
