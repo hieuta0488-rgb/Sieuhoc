@@ -1,6 +1,6 @@
 # Siêu Học
 
-**Phiên bản 4.1**
+**Phiên bản 4.2** (thêm Khoa học tự nhiên 6-9, Vật lí, Hoá học, Sinh học 10-12)
 
 Phần mềm học tập chạy **offline** trên Windows:
 
