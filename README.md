@@ -1,6 +1,6 @@
 # Siêu Học
 
-**Phiên bản 5.1 – trọn bộ lớp 1–12 + Toán 6–12 học theo từng bài SGK Kết nối tri thức**
+**Phiên bản 5.2 – thêm Ngữ văn 6–12 theo SGK Kết nối tri thức (bài có nhãn ⚠ cần đối chiếu sách)**
 
 Phần mềm học tập chạy **offline** trên Windows:
 
